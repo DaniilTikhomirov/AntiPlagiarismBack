@@ -1,6 +1,7 @@
 package com.plagiarism.AntiPlagiarismBack.mappers;
 
 import com.plagiarism.AntiPlagiarismBack.dto.AddCheckWithStudent;
+import com.plagiarism.AntiPlagiarismBack.dto.CheckDto;
 import com.plagiarism.AntiPlagiarismBack.mappers.utils.CheckMapperUtils;
 import com.plagiarism.AntiPlagiarismBack.models.CheckSimilarity;
 import org.mapstruct.Mapper;
@@ -23,4 +24,12 @@ public interface CheckMapper {
     CheckSimilarity toCheckSimilarity(AddCheckWithStudent addCheckWithStudent);
 
     List<CheckSimilarity> toCheckSimilarities(List<AddCheckWithStudent> addCheckWithStudents);
+
+    @Mappings({
+            @Mapping(target = "student1", qualifiedByName = "convertStudents", source = "student1"),
+            @Mapping(target = "student2", qualifiedByName = "convertStudents", source = "student2"),
+    })
+    CheckDto toCheckDto(CheckSimilarity checkSimilarity);
+
+    List<CheckDto> toCheckDtos(List<CheckSimilarity> checkSimilarities);
 }

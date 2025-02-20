@@ -9,7 +9,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
 import java.util.List;
 
 @Service
@@ -19,7 +18,7 @@ public class KafkaConsumer {
     private final HomeWorkService homeWorkService;
     private final ObjectMapper objectMapper;
 
-    @KafkaListener(topics = "sheets-parser", groupId = "sheets")
+    @KafkaListener(topics = "sheets-version-control", groupId = "sheets")
     public void listen(String contents){
 
         try {

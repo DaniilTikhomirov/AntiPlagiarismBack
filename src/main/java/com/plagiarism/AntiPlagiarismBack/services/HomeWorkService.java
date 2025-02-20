@@ -1,19 +1,15 @@
 package com.plagiarism.AntiPlagiarismBack.services;
 
-import com.plagiarism.AntiPlagiarismBack.dto.AddCheckWithStudent;
-import com.plagiarism.AntiPlagiarismBack.dto.HomeWorkContent;
-import com.plagiarism.AntiPlagiarismBack.dto.StudentDto;
-import com.plagiarism.AntiPlagiarismBack.dto.UserContent;
+import com.plagiarism.AntiPlagiarismBack.dto.*;
 import com.plagiarism.AntiPlagiarismBack.enums.HomeWorkType;
 import com.plagiarism.AntiPlagiarismBack.mappers.CheckMapper;
+import com.plagiarism.AntiPlagiarismBack.mappers.HomeWorkMapper;
 import com.plagiarism.AntiPlagiarismBack.models.CheckSimilarity;
 import com.plagiarism.AntiPlagiarismBack.models.HomeWork;
 import com.plagiarism.AntiPlagiarismBack.models.Student;
 import com.plagiarism.AntiPlagiarismBack.repository.HomeWorkRepository;
-import com.plagiarism.AntiPlagiarismBack.repository.StudentRepository;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,15 +21,16 @@ import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class HomeWorkService {
     private final HomeWorkRepository homeWorkRepository;
     private final CalculateService calculateService;
     private final CheckService checkService;
     private final StudentService studentService;
     private final CheckMapper checkMapper;
+    private final HomeWorkMapper homeWorkMapper;
 
-    @PersistenceContext
-    private EntityManager entityManager;
+
 
     @Transactional
     public List<HomeWork> createHomeWork(List<HomeWorkContent>homeWorksContent) throws IOException, InterruptedException {
@@ -67,24 +64,19 @@ public class HomeWorkService {
                 CheckSimilarity checkSimilarity = checkService.find((o.getStudent1() != null)? o.getStudent1().getId():0,
                         o.getStudent2() != null? o.getStudent2().getId():0,
                 homeWorkCheck != null? homeWorkCheck.getId():0);
-                System.out.println("arguments");
-                System.out.println((o.getStudent1() != null)? o.getStudent1().getId():0);
-                System.out.println(o.getStudent2() != null? o.getStudent2().getId():0);
-                System.out.println(homeWorkCheck != null? homeWorkCheck.getId():0);
 
                 if(checkSimilarity != null) {
                     o.setId(checkSimilarity.getId());
-                    System.out.println("update");
+                    log.trace("update{}", checkSimilarity.getId());
                 }
                 o.setHomeWork(homeWork);
-                System.out.println("-----------------------------------------");
             });
             homeWork.setCheckSimilarities(checkSimilarities);
             homeWorks.add(homeWork);
-            System.out.println("home work created");
+            log.trace("home work created");
 
         }
-        System.out.println("home works created");
+        log.info("{} home works created", homeWorks.size());
 
         return homeWorkRepository.saveAll(homeWorks);
     }
@@ -129,7 +121,7 @@ public class HomeWorkService {
                 check.setStudent2_id(student2.getId());
                 check.setSimilarity(similarity);
                 checks.add(check);
-                System.out.println("add check " + check.getStudent1_id() + " " + check.getStudent2_id() + " "  + check.getSimilarity());
+                log.trace("add check {} {} {}", check.getStudent1_id(), check.getStudent2_id(), check.getSimilarity());
             }
         }
 
@@ -159,5 +151,9 @@ public class HomeWorkService {
 
         return uncheckedStudents;
 
+    }
+
+    public List<HomeWorkDto> findAll(){
+        return homeWorkMapper.homeWorkListToHomeWorkDtoList(homeWorkRepository.findAll());
     }
 }

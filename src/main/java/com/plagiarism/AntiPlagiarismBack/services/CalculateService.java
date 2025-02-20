@@ -13,28 +13,12 @@ import java.util.List;
 @Slf4j
 public class CalculateService {
     private final LevenshteinSimilarity levenshteinSimilarity;
-    private final GitHubProjectsParser gitHubProjectsParser;
     private final Shnigle shnigle;
 
-    public double calculate(String link1, String link2) throws IOException, InterruptedException {
-        String code1;
-        String code2;
-        if(link1.startsWith("https://github.com/")) {
-            code1 = gitHubProjectsParser.getRepoTreeByLink(link1);
+    public double calculate(String code1, String code2) throws IOException, InterruptedException {
+        code1 = code1.replaceAll("[\\s,.!*/()%\\-=+]+", "");
+        code2 = code2.replaceAll("[\\s,.!*/()%\\-=+]+", "");
 
-        }else {
-            code1 = link1;
-        }
-
-        if(link2.startsWith("https://github.com/")) {
-            code2 = gitHubProjectsParser.getRepoTreeByLink(link2);
-        }else {
-            code2 = link2;
-        }
-
-        if (code1 == null || code2 == null) {
-            throw new NullPointerException("code1 and code2 is null");
-        }
 
         List<String> blocks1 = code1.length() > 5000 ? splitIntoBlocks(code1, 5000) : List.of(code1);
         List<String> blocks2 = code2.length() > 5000 ? splitIntoBlocks(code2, 5000) : List.of(code2);
